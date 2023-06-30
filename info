@@ -1,0 +1,31 @@
+import librosa
+import os
+
+# Define the path to the audio file you want to recognize
+audio_path = 'path_to_audio_file.wav'
+
+# Define a directory containing a database of reference audio files
+database_dir = 'path_to_database_directory'
+
+# Load the audio file
+query_audio, query_sr = librosa.load(audio_path)
+
+# Iterate through the reference audio files in the database directory
+for filename in os.listdir(database_dir):
+    ref_audio_path = os.path.join(database_dir, filename)
+    
+    # Load the reference audio file
+    ref_audio, ref_sr = librosa.load(ref_audio_path)
+    
+    # Compute the fingerprints for both the query audio and the reference audio
+    query_fingerprints = librosa.feature.chroma_stft(query_audio, sr=query_sr)
+    ref_fingerprints = librosa.feature.chroma_stft(ref_audio, sr=ref_sr)
+    
+    # Compare the fingerprints using a distance metric (e.g., Euclidean distance)
+    distance = librosa.feature.delta(query_fingerprints) - ref_fingerprints
+    
+    # Calculate the similarity score
+    similarity_score = sum(sum(distance))
+    
+    # Print the filename and similarity score
+    print(f"File: {filename}, Similarity Score: {similarity_score}")
